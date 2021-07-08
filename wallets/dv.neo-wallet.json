@@ -1,0 +1,29 @@
+{
+  "name": "dv",
+  "version": "1.0",
+  "scrypt": {
+    "n": 16384,
+    "r": 8,
+    "p": 8,
+    "size": 64
+  },
+  "accounts": [
+    {
+      "address": "NSadsnNbMKd5DDdLESNFUZwxr9Zmyc9wBJ",
+      "label": "Default account",
+      "isDefault": true,
+      "lock": false,
+      "key": "6PYKxtnKKGZ7L8J1ggtSgbvUzf8iBaDf1D9cmJrj82LRydmu7HTtquNWEU",
+      "contract": {
+        "script": "DCEDs2eB8kxgY2MO1TCusAFC3aq5AlowmuyQJyVN56R3XwdBVuezJw==",
+        "parameters": [
+          {
+            "name": "signature",
+            "type": "Signature"
+          }
+        ],
+        "deployed": false
+      }
+    }
+  ]
+}
