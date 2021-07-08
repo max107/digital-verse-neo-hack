@@ -8,3 +8,5 @@ services:
       - 8080:8080
     env_file:
       - ./server/config.env
+    volumes:
+      - ./wallets/dv.neo-wallet.json:/go/src/DigitalVerse/dv.neo-wallet.json
