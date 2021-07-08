@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/joeqian10/neo3-gogogo/rpc"
-	"github.com/joeqian10/neo3-gogogo/wallet"
 	"github.com/joeqian10/neo3-gogogo/crypto"
 	"github.com/joeqian10/neo3-gogogo/helper"
 	"github.com/joeqian10/neo3-gogogo/rpc"
@@ -10,11 +8,13 @@ import (
 	"github.com/joeqian10/neo3-gogogo/tx"
 	"github.com/joeqian10/neo3-gogogo/wallet"
 	"github.com/gin-gonic/gin"
+	"errors"
+	"fmt"
 )
 
-func mint() (hash String, err error) {
+func mint() (hash string, err error) {
 	port := "http://seed1t.neo.org:20332"
-	client := rpc.NewClient(yourPort)
+	client := rpc.NewClient(port)
 
 	var magic uint32 = 844378958 // change to your network magic number
 	ps := helper.ProtocolSettings{
@@ -23,11 +23,11 @@ func mint() (hash String, err error) {
 	}
 	w, err := wallet.NewNEP6Wallet("./dv.neo-wallet.json", &ps, nil, nil)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	err = w.Unlock("qwerty")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// create a WalletHelper
@@ -36,7 +36,7 @@ func mint() (hash String, err error) {
 	// build script
 	scriptHash, err := helper.UInt160FromString("0x9b437260ae6a5938a858f66dd802fc399ec128df")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	// if your contract method has parameters
 	cp1 := sc.ContractParameter{
@@ -45,25 +45,25 @@ func mint() (hash String, err error) {
 	}
 	script, err := sc.MakeScript(scriptHash, "mint", []interface{}{cp1})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// get balance of gas in your account
 	balancesGas, err := wh.GetAccountAndBalance(tx.GasToken)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// make transaction
 	trx, err := wh.MakeTransaction(script, nil, []tx.ITransactionAttribute{}, balancesGas)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// sign transaction
 	trx, err = wh.SignTransaction(trx, magic)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// send the transaction
@@ -71,11 +71,11 @@ func mint() (hash String, err error) {
 	response := wh.Client.SendRawTransaction(rawTxString)
 	if response.HasError() {
 		// do something
-		return nil, errors.New("Send transaction error")
+		return "", errors.New("Send transaction error")
 	}
 
 	// hash is the transaction hash
-	hash := trx.GetHash().String()
+	hash = trx.GetHash().String()
 	return hash, nil
 }
 

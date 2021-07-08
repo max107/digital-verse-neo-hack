@@ -12,8 +12,7 @@ WORKDIR /go/src/${APP_NAME}/
 
 RUN go mod init
 
-RUN go get github.com/gin-gonic/gin
-RUN go get github.com/joeqian10/neo3-gogogo
+RUN go get ./...
 
 RUN go install 
 
