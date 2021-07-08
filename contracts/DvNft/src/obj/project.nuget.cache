@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "raHgaltiIFqOE0BGou6ftYlYdbvK216Uh9KdRhzFEVk8edYpAs52lelSIGW/bW+BM4qgUc7oVGpSypE15XcoVA==",
+  "success": true,
+  "projectFilePath": "/Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj",
+  "expectedPackageFiles": [
+    "/Users/maxim/.nuget/packages/neo.smartcontract.framework/3.0.0-rc3/neo.smartcontract.framework.3.0.0-rc3.nupkg.sha512"
+  ],
+  "logs": []
+}
