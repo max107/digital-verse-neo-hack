@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj": {}
+    "/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj": {}
   },
   "projects": {
-    "/Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj": {
+    "/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj",
+        "projectUniqueName": "/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj",
         "projectName": "DvNftContract",
-        "projectPath": "/Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj",
+        "projectPath": "/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/DvNftContract.csproj",
         "packagesPath": "/Users/maxim/.nuget/packages/",
-        "outputPath": "/Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/obj/",
+        "outputPath": "/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/maxim/.nuget/NuGet/NuGet.Config"

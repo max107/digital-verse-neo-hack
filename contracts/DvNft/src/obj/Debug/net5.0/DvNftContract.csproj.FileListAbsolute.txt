@@ -10,3 +10,15 @@
 /Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.dll
 /Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/ref/DvNftContract.dll
 /Users/maxim/Desktop/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.pdb
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/bin/Debug/net5.0/DvNftContract.deps.json
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/bin/Debug/net5.0/DvNftContract.dll
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/bin/Debug/net5.0/ref/DvNftContract.dll
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/bin/Debug/net5.0/DvNftContract.pdb
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.csproj.AssemblyReference.cache
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.GeneratedMSBuildEditorConfig.editorconfig
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.AssemblyInfoInputs.cache
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.AssemblyInfo.cs
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.csproj.CoreCompileInputs.cache
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.dll
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/ref/DvNftContract.dll
+/Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/contracts/DvNft/src/obj/Debug/net5.0/DvNftContract.pdb

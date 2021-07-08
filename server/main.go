@@ -1,15 +1,15 @@
 package main
 
 import (
+	"errors"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/joeqian10/neo3-gogogo/crypto"
 	"github.com/joeqian10/neo3-gogogo/helper"
 	"github.com/joeqian10/neo3-gogogo/rpc"
 	"github.com/joeqian10/neo3-gogogo/sc"
 	"github.com/joeqian10/neo3-gogogo/tx"
 	"github.com/joeqian10/neo3-gogogo/wallet"
-	"github.com/gin-gonic/gin"
-	"errors"
-	"fmt"
 )
 
 func mint() (hash string, err error) {
@@ -23,47 +23,55 @@ func mint() (hash string, err error) {
 	}
 	w, err := wallet.NewNEP6Wallet("./dv.neo-wallet.json", &ps, nil, nil)
 	if err != nil {
-		return "", err
+		return "Wallet file error", err
 	}
 	err = w.Unlock("qwerty")
 	if err != nil {
-		return "", err
+		return "Wallet password error", err
 	}
 
 	// create a WalletHelper
 	wh := wallet.NewWalletHelperFromWallet(client, w)
 
 	// build script
-	scriptHash, err := helper.UInt160FromString("0x9b437260ae6a5938a858f66dd802fc399ec128df")
+	scriptHash, err := helper.UInt160FromString("0x9b851e83c1d46172fea6298be92a276b3cc784c6")
 	if err != nil {
-		return "", err
+		return "Build script error", err
 	}
 	// if your contract method has parameters
 	cp1 := sc.ContractParameter{
 		Type:  sc.ByteArray,
-		Value: []byte{},
+		Value: []byte("name"),
 	}
-	script, err := sc.MakeScript(scriptHash, "mint", []interface{}{cp1})
+	cp2 := sc.ContractParameter{
+		Type:  sc.ByteArray,
+		Value: []byte("description"),
+	}
+	cp3 := sc.ContractParameter{
+		Type:  sc.ByteArray,
+		Value: []byte("image"),
+	}
+	script, err := sc.MakeScript(scriptHash, "mint", []interface{}{cp1, cp2, cp3})
 	if err != nil {
-		return "", err
+		return "Mint error", err
 	}
 
 	// get balance of gas in your account
 	balancesGas, err := wh.GetAccountAndBalance(tx.GasToken)
 	if err != nil {
-		return "", err
+		return "GetAccountAndBalance error", err
 	}
 
 	// make transaction
 	trx, err := wh.MakeTransaction(script, nil, []tx.ITransactionAttribute{}, balancesGas)
 	if err != nil {
-		return "", err
+		return "Make transaction error", err
 	}
 
 	// sign transaction
 	trx, err = wh.SignTransaction(trx, magic)
 	if err != nil {
-		return "", err
+		return "Sign transaction error", err
 	}
 
 	// send the transaction
@@ -71,7 +79,7 @@ func mint() (hash string, err error) {
 	response := wh.Client.SendRawTransaction(rawTxString)
 	if response.HasError() {
 		// do something
-		return "", errors.New("Send transaction error")
+		return "Send transaction error", errors.New("Send transaction error")
 	}
 
 	// hash is the transaction hash
@@ -99,10 +107,11 @@ func main() {
 	})
 
 	r.GET("/mint", func(c *gin.Context) {
-		tx_hash, err := mint()
+		txHash, err := mint()
+		fmt.Println(err)
 		c.JSON(200, gin.H{
-			"tx_hash": tx_hash,
-			"error": err,
+			"tx_hash": txHash,
+			"error":   err,
 		})
 	})
 

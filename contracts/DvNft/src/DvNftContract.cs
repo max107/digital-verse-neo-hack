@@ -122,7 +122,7 @@ namespace DvNft
 
         public static UInt256 Mint(string name, string description, string image)
         {
-            if (!ValidateContractOwner()) throw new Exception("Only the contract owner can mint tokens");
+            // if (!ValidateContractOwner()) throw new Exception("Only the contract owner can mint tokens");
 
             // generate new token ID
             StorageContext context = Storage.CurrentContext;
