@@ -97,7 +97,7 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 		return "", errors.New(response.Error.Message)
 	}
 
-	// hash is the transaction hash
+	// transaction hash
 	hash = trx.GetHash().String()
 	return hash, nil
 }
@@ -117,12 +117,13 @@ func main() {
 		url := c.PostForm("url")
 
 		txHash, err := mint(name, description, url)
+		txHash = "0x" + txHash
 
 		fmt.Println(err)
 
 		c.JSON(200, gin.H{
 			"tx_hash": txHash,
-			"tx_url": explorerLinkTx + txHash,
+			"url": explorerLinkTx + txHash,
 			"error":   err,
 		})
 	})

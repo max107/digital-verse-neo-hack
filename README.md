@@ -26,5 +26,9 @@ Params:
 name - string
 description - string
 url - string
+Return:
+tx_hash - string
+url - string
+error - string
 2.
 {server}/
