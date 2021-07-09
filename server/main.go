@@ -12,74 +12,89 @@ import (
 	"github.com/joeqian10/neo3-gogogo/wallet"
 )
 
-func mint() (hash string, err error) {
-	port := "http://seed1t.neo.org:20332"
+const port = "http://seed1t.neo.org:20332"
+const magic = 844378958
+const walletPath = "./dv.neo-wallet.json"
+const walletPassword = "qwerty"
+const scriptHash = "0x9b851e83c1d46172fea6298be92a276b3cc784c6"
+const explorerLink = "https://neo3.neotube.io"
+const explorerLinkContract = explorerLink + "/contract/"
+const explorerLinkAddress = explorerLink + "/address/"
+const explorerLinkTx = explorerLink + "/block/transaction/"
+
+func mint(name string, description string, url string) (hash string, err error) {
+	// init arguments
+	cp1 := sc.ContractParameter{
+		Type:  sc.ByteArray,
+		Value: []byte(name),
+	}
+	cp2 := sc.ContractParameter{
+		Type:  sc.ByteArray,
+		Value: []byte(description),
+	}
+	cp3 := sc.ContractParameter{
+		Type:  sc.ByteArray,
+		Value: []byte(url),
+	}
+	hash, err = invokeContract("mint", []interface{}{cp1, cp2, cp3})
+
+	return hash, err
+}
+
+func invokeContract(methodName string, args []interface{}) (hash string, err error) {
 	client := rpc.NewClient(port)
 
-	var magic uint32 = 844378958 // change to your network magic number
 	ps := helper.ProtocolSettings{
 		Magic:          magic,
 		AddressVersion: helper.DefaultAddressVersion,
 	}
-	w, err := wallet.NewNEP6Wallet("./dv.neo-wallet.json", &ps, nil, nil)
+	w, err := wallet.NewNEP6Wallet(walletPath, &ps, nil, nil)
 	if err != nil {
-		return "Wallet file error", err
+		return "", err
 	}
-	err = w.Unlock("qwerty")
+	err = w.Unlock(walletPassword)
 	if err != nil {
-		return "Wallet password error", err
+		return "", err
 	}
 
 	// create a WalletHelper
 	wh := wallet.NewWalletHelperFromWallet(client, w)
 
 	// build script
-	scriptHash, err := helper.UInt160FromString("0x9b851e83c1d46172fea6298be92a276b3cc784c6")
+	scriptHash, err := helper.UInt160FromString(scriptHash)
 	if err != nil {
-		return "Build script error", err
+		return "", err
 	}
-	// if your contract method has parameters
-	cp1 := sc.ContractParameter{
-		Type:  sc.ByteArray,
-		Value: []byte("name"),
-	}
-	cp2 := sc.ContractParameter{
-		Type:  sc.ByteArray,
-		Value: []byte("description"),
-	}
-	cp3 := sc.ContractParameter{
-		Type:  sc.ByteArray,
-		Value: []byte("image"),
-	}
-	script, err := sc.MakeScript(scriptHash, "mint", []interface{}{cp1, cp2, cp3})
+
+	script, err := sc.MakeScript(scriptHash, methodName, args)
 	if err != nil {
-		return "Mint error", err
+		return "", err
 	}
 
 	// get balance of gas in your account
 	balancesGas, err := wh.GetAccountAndBalance(tx.GasToken)
 	if err != nil {
-		return "GetAccountAndBalance error", err
+		return "", err
 	}
 
 	// make transaction
 	trx, err := wh.MakeTransaction(script, nil, []tx.ITransactionAttribute{}, balancesGas)
 	if err != nil {
-		return "Make transaction error", err
+		return "", err
 	}
 
 	// sign transaction
 	trx, err = wh.SignTransaction(trx, magic)
 	if err != nil {
-		return "Sign transaction error", err
+		return "", err
 	}
 
 	// send the transaction
 	rawTxString := crypto.Base64Encode(trx.ToByteArray())
 	response := wh.Client.SendRawTransaction(rawTxString)
+
 	if response.HasError() {
-		// do something
-		return "Send transaction error", errors.New("Send transaction error")
+		return "", errors.New(response.Error.Message)
 	}
 
 	// hash is the transaction hash
@@ -89,28 +104,25 @@ func mint() (hash string, err error) {
 
 func main() {
 	r := gin.Default()
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	r.POST("/form_post", func(c *gin.Context) {
-		message := c.PostForm("message")
-		nick := c.DefaultPostForm("nick", "anonymous")
+	r.POST("/create_nft", func(c *gin.Context) {
+		name := c.PostForm("name")
+		description := c.PostForm("description")
+		url := c.PostForm("url")
 
-		c.JSON(200, gin.H{
-			"status":  "posted",
-			"message": message,
-			"nick":    nick,
-		})
-	})
+		txHash, err := mint(name, description, url)
 
-	r.GET("/mint", func(c *gin.Context) {
-		txHash, err := mint()
 		fmt.Println(err)
+
 		c.JSON(200, gin.H{
 			"tx_hash": txHash,
+			"tx_url": explorerLinkTx + txHash,
 			"error":   err,
 		})
 	})
