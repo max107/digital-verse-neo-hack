@@ -61,6 +61,13 @@ func getTokenProperties(tokenId string) (hash string, err error) {
 	return hash, err
 }
 
+func getTokens() (hash string, err error) {
+
+	hash, err = invokeContract("tokens", []interface{}{})
+
+	return hash, err
+}
+
 func totalSupply() (hash string, err error) {
 	hash, err = invokeContract("totalSupply", []interface{}{})
 	return hash, err
@@ -202,6 +209,27 @@ func main() {
 		tokenId := c.PostForm("tokenId")
 
 		txHash, err := getTokenProperties(tokenId)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		txLogs, err := getLogsFromTx(txHash, true)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		responseTxHash := "0x" + txHash
+		c.JSON(200, gin.H{
+			"tx_hash": responseTxHash,
+			"url": explorerLinkTx + responseTxHash,
+			"logs": txLogs,
+			"error":   err,
+		})
+	})
+
+	r.GET("/tokens", func(c *gin.Context) {
+
+		txHash, err := getTokens()
 		if err != nil {
 			fmt.Println(err)
 		}
