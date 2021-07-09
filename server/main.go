@@ -55,6 +55,7 @@ func getTokenProperties(tokenId string) (hash string, err error) {
 		Type:  sc.ByteArray,
 		Value: []byte(tokenId),
 	}
+	
 	hash, err = invokeContract("properties", []interface{}{cp1})
 
 	return hash, err
@@ -197,8 +198,8 @@ func main() {
 		})
 	})
 
-	r.GET("/token_properties", func(c *gin.Context) {
-		tokenId := c.Query("tokenId")
+	r.POST("/token_properties", func(c *gin.Context) {
+		tokenId := c.PostForm("tokenId")
 
 		txHash, err := getTokenProperties(tokenId)
 		if err != nil {
