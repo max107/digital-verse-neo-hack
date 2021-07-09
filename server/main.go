@@ -175,13 +175,15 @@ func main() {
 		fileUrl := c.PostForm("url")
 
 		txHash, err := mint(name, description, fileUrl)
-		txHash = "0x" + txHash
-
+		fmt.Println(err)
+		stack, err := getStackFromTx(txHash, true)
 		fmt.Println(err)
 
+		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
-			"tx_hash": txHash,
-			"url": explorerLinkTx + txHash,
+			"tx_hash": responseTxHash,
+			"url": explorerLinkTx + responseTxHash,
+			"stack": stack,
 			"error":   err,
 		})
 	})
@@ -190,13 +192,16 @@ func main() {
 		tokenId := c.Query("tokenId")
 
 		txHash, err := getTokenProperties(tokenId)
-		txHash = "0x" + txHash
-
 		fmt.Println(err)
 
+		stack, err := getStackFromTx(txHash, true)
+		fmt.Println(err)
+
+		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
-			"tx_hash": txHash,
-			"url": explorerLinkTx + txHash,
+			"tx_hash": responseTxHash,
+			"url": explorerLinkTx + responseTxHash,
+			"stack": stack,
 			"error":   err,
 		})
 	})
@@ -209,7 +214,6 @@ func main() {
 		fmt.Println(err)
 
 		responseTxHash := "0x" + txHash
-
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
