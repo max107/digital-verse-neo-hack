@@ -14,6 +14,7 @@ import (
 	"github.com/joeqian10/neo3-gogogo/wallet"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -125,7 +126,7 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 	return hash, nil
 }
 
-func getStackFromTx(txHash string, wait bool) (stack string, err error) {
+func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 	if wait {
 		time.Sleep(20 * time.Second) // wait until transaction is included in block...?
 	}
@@ -173,11 +174,19 @@ func main() {
 		name := c.PostForm("name")
 		description := c.PostForm("description")
 		fileUrl := c.PostForm("url")
-
+		showTxLogsRequestValue := c.DefaultPostForm("show_tx_logs", "false")
+		showTxLogs, err := strconv.ParseBool(showTxLogsRequestValue)
+		if err != nil {
+			fmt.Println(err)
+		}
 		txHash, err := mint(name, description, fileUrl)
-		fmt.Println(err)
-		stack, err := getStackFromTx(txHash, true)
-		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+		}
+		stack, err := getLogsFromTx(txHash, showTxLogs)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
@@ -192,10 +201,14 @@ func main() {
 		tokenId := c.Query("tokenId")
 
 		txHash, err := getTokenProperties(tokenId)
-		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+		}
 
-		stack, err := getStackFromTx(txHash, true)
-		fmt.Println(err)
+		stack, err := getLogsFromTx(txHash, true)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
@@ -209,9 +222,13 @@ func main() {
 	r.GET("/total_supply", func(c *gin.Context) {
 
 		txHash, err := totalSupply()
-		fmt.Println(err)
-		stack, err := getStackFromTx(txHash, true)
-		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+		}
+		stack, err := getLogsFromTx(txHash, true)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
