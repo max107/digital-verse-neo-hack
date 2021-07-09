@@ -8,8 +8,8 @@ qwerty
 1.
 NSadsnNbMKd5DDdLESNFUZwxr9Zmyc9wBJ - creator
 NEO N3 TestNet:0 - network
-0x2c3ac7628aeee6743cc13843c926237c20a5178c3fc0b5ede77e20ab7a3bda2e - transaction
-https://neo3.neotube.io/contract/0x9b851e83c1d46172fea6298be92a276b3cc784c6 - info
+0x97cee8dd846752091815245cdffa7ab209557f5692aa07ade8ed7f80ce949e02 - transaction
+https://neo3.neotube.io/contract/0x146013865adf3f4d74e26aa16148badc879b6882 - info
 
 # TestNet Tools
 
@@ -32,3 +32,9 @@ url - string
 error - string
 2.
 {server}/
+
+
+# Tools
+https://github.com/nspcc-dev/neo-go-sc-wrkshp
+1. Tx result
+curl -d '{ "jsonrpc": "2.0", "id": 1, "method": "getapplicationlog", "params": ["146b3bcb2ce8c5d0b94d81bbf401342bd4d54be159f38be7ecdc1897bc834f04"] }' http://seed1t.neo.org:20332 | json_pp

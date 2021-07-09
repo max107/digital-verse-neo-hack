@@ -10,17 +10,22 @@ import (
 	"github.com/joeqian10/neo3-gogogo/sc"
 	"github.com/joeqian10/neo3-gogogo/tx"
 	"github.com/joeqian10/neo3-gogogo/wallet"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 const port = "http://seed1t.neo.org:20332"
 const magic = 844378958
 const walletPath = "./dv.neo-wallet.json"
 const walletPassword = "qwerty"
-const scriptHash = "0x9b851e83c1d46172fea6298be92a276b3cc784c6"
+const scriptHash = "0x19d98abb558d15cb9b893a6c6b4f01b3aa380336"
 const explorerLink = "https://neo3.neotube.io"
 const explorerLinkContract = explorerLink + "/contract/"
 const explorerLinkAddress = explorerLink + "/address/"
-const explorerLinkTx = explorerLink + "/block/transaction/"
+const explorerLinkTx = explorerLink + "/transaction/"
+
+
 
 func mint(name string, description string, url string) (hash string, err error) {
 	// init arguments
@@ -41,6 +46,22 @@ func mint(name string, description string, url string) (hash string, err error) 
 	return hash, err
 }
 
+func getTokenProperties(tokenId string) (hash string, err error) {
+	// init arguments
+	cp1 := sc.ContractParameter{
+		Type:  sc.ByteArray,
+		Value: []byte(tokenId),
+	}
+	hash, err = invokeContract("properties", []interface{}{cp1})
+
+	return hash, err
+}
+
+func totalSupply() (hash string, err error) {
+	hash, err = invokeContract("totalSupply", []interface{}{})
+	return hash, err
+}
+
 func invokeContract(methodName string, args []interface{}) (hash string, err error) {
 	client := rpc.NewClient(port)
 
@@ -50,11 +71,11 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 	}
 	w, err := wallet.NewNEP6Wallet(walletPath, &ps, nil, nil)
 	if err != nil {
-		return "", err
+		return "1", err
 	}
 	err = w.Unlock(walletPassword)
 	if err != nil {
-		return "", err
+		return "2", err
 	}
 
 	// create a WalletHelper
@@ -63,30 +84,30 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 	// build script
 	scriptHash, err := helper.UInt160FromString(scriptHash)
 	if err != nil {
-		return "", err
+		return "3", err
 	}
 
 	script, err := sc.MakeScript(scriptHash, methodName, args)
 	if err != nil {
-		return "", err
+		return "4", err
 	}
 
 	// get balance of gas in your account
 	balancesGas, err := wh.GetAccountAndBalance(tx.GasToken)
 	if err != nil {
-		return "", err
+		return "5", err
 	}
 
 	// make transaction
 	trx, err := wh.MakeTransaction(script, nil, []tx.ITransactionAttribute{}, balancesGas)
 	if err != nil {
-		return "", err
+		return "6", err
 	}
 
 	// sign transaction
 	trx, err = wh.SignTransaction(trx, magic)
 	if err != nil {
-		return "", err
+		return "7", err
 	}
 
 	// send the transaction
@@ -94,12 +115,35 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 	response := wh.Client.SendRawTransaction(rawTxString)
 
 	if response.HasError() {
-		return "", errors.New(response.Error.Message)
+		return "8", errors.New(response.Error.Message)
 	}
 
 	// transaction hash
 	hash = trx.GetHash().String()
 	return hash, nil
+}
+
+func getStackFromTx(txHash string) (stack string, err error) {
+
+	params := url.Values{}
+	params.Add("{ jsonrpc: 2.0, id: 1, method: getapplicationlog, params: [146b3bcb2ce8c5d0b94d81bbf401342bd4d54be159f38be7ecdc1897bc834f04] }", ``)
+	body := strings.NewReader(params.Encode())
+
+	req, err := http.NewRequest("POST", "http://seed1t.neo.org:20332", body)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	fmt.Println(resp)
+
+	return "", nil
 }
 
 func main() {
@@ -124,6 +168,38 @@ func main() {
 		c.JSON(200, gin.H{
 			"tx_hash": txHash,
 			"url": explorerLinkTx + txHash,
+			"error":   err,
+		})
+	})
+
+	r.GET("/token_properties", func(c *gin.Context) {
+		tokenId := c.Query("tokenId")
+
+		txHash, err := getTokenProperties(tokenId)
+		txHash = "0x" + txHash
+
+		fmt.Println(err)
+
+		c.JSON(200, gin.H{
+			"tx_hash": txHash,
+			"url": explorerLinkTx + txHash,
+			"error":   err,
+		})
+	})
+
+	r.GET("/total_supply", func(c *gin.Context) {
+
+		txHash, err := totalSupply()
+		fmt.Println(err)
+		stack, err := getStackFromTx(txHash)
+		fmt.Println(err)
+
+		responseTxHash := "0x" + txHash
+
+		c.JSON(200, gin.H{
+			"tx_hash": responseTxHash,
+			"url": explorerLinkTx + responseTxHash,
+			"stack": stack,
 			"error":   err,
 		})
 	})
