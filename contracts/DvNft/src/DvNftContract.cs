@@ -179,23 +179,6 @@ namespace DvNft
             }
         }
 
-        [DisplayName("_deploy")]
-        public static void Deploy(object data, bool update)
-        {
-            if (update) return;
-
-            var tx = (Transaction)Runtime.ScriptContainer;
-            var key = new byte[] { Prefix_ContractOwner };
-            Storage.Put(Storage.CurrentContext, key, tx.Sender);
-        }
-
-        public static void Update(ByteString nefFile, string manifest)
-        {
-            if (!ValidateContractOwner()) throw new Exception("Only the contract owner can update the contract");
-
-            ContractManagement.Update(nefFile, manifest, null);
-        }
-
         static void UpdateTotalSupply(BigInteger increment)
         {
             StorageContext context = Storage.CurrentContext;
