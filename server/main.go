@@ -14,8 +14,7 @@ import (
 	"github.com/joeqian10/neo3-gogogo/wallet"
 	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strings"
+	"time"
 )
 
 const port = "http://seed1t.neo.org:20332"
@@ -126,32 +125,10 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 	return hash, nil
 }
 
-func getStackFromTx2(txHash string) (stack string, err error) {
-
-	params := url.Values{}
-	// params.Add("{ jsonrpc: 2.0, id: 1, method: getapplicationlog, params: [" + txHash + "] }", ``)
-	params.Add("{ jsonrpc: 2.0, id: 1, method: getapplicationlog, params: [\"72cf181c6845c879be3012af31b539d6b622f8bf508b1b8d5faee0701f49c19c\"] }", ``)
-	body := strings.NewReader(params.Encode())
-
-	req, err := http.NewRequest("POST", "http://seed1t.neo.org:20332", body)
-	if err != nil {
-		return "", err
+func getStackFromTx(txHash string, wait bool) (stack string, err error) {
+	if wait {
+		time.Sleep(20 * time.Second) // wait until transaction is included in block...?
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	result, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(result))
-
-	return "", nil
-}
-
-func getStackFromTx(txHash string) (stack string, err error) {
 	type RequestStruct struct {
 		Jsonrpc    	string `json:"jsonrpc"`
 		Id   		int `json:"id"`
@@ -162,7 +139,7 @@ func getStackFromTx(txHash string) (stack string, err error) {
 		Jsonrpc:    "2.0",
 		Id:      	1,
 		Method: 	"getapplicationlog",
-		Params:   	[]string{"72cf181c6845c879be3012af31b539d6b622f8bf508b1b8d5faee0701f49c19c"},
+		Params:   	[]string{ txHash },
 	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -175,11 +152,12 @@ func getStackFromTx(txHash string) (stack string, err error) {
 		return "", err
 	}
 
-	var res map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&res)
-	fmt.Println(res)
+	result, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 
-	return "", nil
+	return string(result), nil
 }
 
 func main() {
@@ -227,7 +205,7 @@ func main() {
 
 		txHash, err := totalSupply()
 		fmt.Println(err)
-		stack, err := getStackFromTx(txHash)
+		stack, err := getStackFromTx(txHash, true)
 		fmt.Println(err)
 
 		responseTxHash := "0x" + txHash

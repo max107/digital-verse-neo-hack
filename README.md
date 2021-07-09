@@ -37,4 +37,4 @@ error - string
 # Tools
 https://github.com/nspcc-dev/neo-go-sc-wrkshp
 1. Tx result
-curl -d '{ "jsonrpc": "2.0", "id": 1, "method": "getapplicationlog", "params": ["72cf181c6845c879be3012af31b539d6b622f8bf508b1b8d5faee0701f49c19c"] }' http://seed1t.neo.org:20332 | json_pp
+curl -d '{ "jsonrpc": "2.0", "id": 1, "method": "getapplicationlog", "params": ["001e84bced320c8e46afe613c89ad5b3a174260f74b5517ff1b26c1ded159dff"] }' http://seed1t.neo.org:20332 | json_pp
