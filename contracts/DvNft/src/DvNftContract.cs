@@ -223,5 +223,15 @@ namespace DvNft
             var tx = (Transaction)Runtime.ScriptContainer;
             return contractOwner.Equals(tx.Sender) && Runtime.CheckWitness(contractOwner);
         }
+
+        [DisplayName("_deploy")]
+        public static void Deploy(object data, bool update)
+        {
+            if (update) return;
+
+            var tx = (Transaction)Runtime.ScriptContainer;
+            var key = new byte[] { Prefix_ContractOwner };
+            Storage.Put(Storage.CurrentContext, key, tx.Sender);
+        }
     }
 }
