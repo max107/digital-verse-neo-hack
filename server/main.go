@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -10,6 +12,7 @@ import (
 	"github.com/joeqian10/neo3-gogogo/sc"
 	"github.com/joeqian10/neo3-gogogo/tx"
 	"github.com/joeqian10/neo3-gogogo/wallet"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -123,10 +126,11 @@ func invokeContract(methodName string, args []interface{}) (hash string, err err
 	return hash, nil
 }
 
-func getStackFromTx(txHash string) (stack string, err error) {
+func getStackFromTx2(txHash string) (stack string, err error) {
 
 	params := url.Values{}
-	params.Add("{ jsonrpc: 2.0, id: 1, method: getapplicationlog, params: [146b3bcb2ce8c5d0b94d81bbf401342bd4d54be159f38be7ecdc1897bc834f04] }", ``)
+	// params.Add("{ jsonrpc: 2.0, id: 1, method: getapplicationlog, params: [" + txHash + "] }", ``)
+	params.Add("{ jsonrpc: 2.0, id: 1, method: getapplicationlog, params: [\"72cf181c6845c879be3012af31b539d6b622f8bf508b1b8d5faee0701f49c19c\"] }", ``)
 	body := strings.NewReader(params.Encode())
 
 	req, err := http.NewRequest("POST", "http://seed1t.neo.org:20332", body)
@@ -141,7 +145,39 @@ func getStackFromTx(txHash string) (stack string, err error) {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println(resp)
+	result, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(result))
+
+	return "", nil
+}
+
+func getStackFromTx(txHash string) (stack string, err error) {
+	type RequestStruct struct {
+		Jsonrpc    	string `json:"jsonrpc"`
+		Id   		int `json:"id"`
+		Method  	string  `json:"method"`
+		Params  	[]string `json:"params"`
+	}
+	data := RequestStruct{
+		Jsonrpc:    "2.0",
+		Id:      	1,
+		Method: 	"getapplicationlog",
+		Params:   	[]string{"72cf181c6845c879be3012af31b539d6b622f8bf508b1b8d5faee0701f49c19c"},
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.Post("http://seed1t.neo.org:20332", "application/json",
+		bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", err
+	}
+
+	var res map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&res)
+	fmt.Println(res)
 
 	return "", nil
 }
@@ -158,9 +194,9 @@ func main() {
 	r.POST("/create_nft", func(c *gin.Context) {
 		name := c.PostForm("name")
 		description := c.PostForm("description")
-		url := c.PostForm("url")
+		fileUrl := c.PostForm("url")
 
-		txHash, err := mint(name, description, url)
+		txHash, err := mint(name, description, fileUrl)
 		txHash = "0x" + txHash
 
 		fmt.Println(err)
