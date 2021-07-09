@@ -183,7 +183,7 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		stack, err := getLogsFromTx(txHash, showTxLogs)
+		txLogs, err := getLogsFromTx(txHash, showTxLogs)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -192,7 +192,7 @@ func main() {
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
-			"stack": stack,
+			"stack": txLogs,
 			"error":   err,
 		})
 	})
@@ -205,7 +205,7 @@ func main() {
 			fmt.Println(err)
 		}
 
-		stack, err := getLogsFromTx(txHash, true)
+		txLogs, err := getLogsFromTx(txHash, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -214,7 +214,7 @@ func main() {
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
-			"stack": stack,
+			"logs": txLogs,
 			"error":   err,
 		})
 	})
@@ -225,7 +225,7 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		stack, err := getLogsFromTx(txHash, true)
+		txLogs, err := getLogsFromTx(txHash, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -234,7 +234,7 @@ func main() {
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
-			"stack": stack,
+			"stack": txLogs,
 			"error":   err,
 		})
 	})
