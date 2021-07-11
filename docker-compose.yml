@@ -10,4 +10,4 @@ services:
       - ./server/config.env
     volumes:
       - ./wallets/dv.neo-wallet.json:/go/src/DigitalVerse/dv.neo-wallet.json
-      - ./test/test.mov:/go/src/DigitalVerse/videos/test.mov
+      - ./tests/test.mov:/go/src/DigitalVerse/videos/test.mov

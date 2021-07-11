@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,6 +24,7 @@ const port = "http://seed1t.neo.org:20332"
 const magic = 844378958
 const walletPath = "./dv.neo-wallet.json"
 const address = "NSadsnNbMKd5DDdLESNFUZwxr9Zmyc9wBJ"
+const wip = "KzbbA7tBNoSQHQiigtVSjcbX17R5p89Hb3LTCBhYvF85mZjHWj6n"
 const walletPassword = "qwerty"
 const scriptHash = "0x19d98abb558d15cb9b893a6c6b4f01b3aa380336"
 const explorerLink = "https://neo3.neotube.io"
@@ -30,7 +32,7 @@ const explorerLinkContract = explorerLink + "/contract/"
 const explorerLinkAddress = explorerLink + "/address/"
 const explorerLinkTx = explorerLink + "/transaction/"
 const neofsContainerId = "9i3ihnXrbHdN5f5TeG6BAgBi4uPmSeCKNSZsjmsHMvjE"
-const neofsContainerLink = "https://http.fs.neo.org/" + neofsContainerId + "/"
+const neofsHttpLink = "https://http.fs.neo.org"
 const neofsNodeLink = "st1.storage.fs.neo.org:8080"
 
 func mint(name string, description string, url string) (hash string, err error) {
@@ -173,37 +175,38 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 }
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
-	// TODO upload from s3 and get local file path
+	// TODO upload from s3 and get localFilePath var
+	localFilePath := "./videos/test.mov" // TODO change this var
 
 	// Sorry for this peace of code, we first tried to use code from https://github.com/nspcc-dev/neofs-node and then from https://github.com/nspcc-dev/neofs-api-go
 	// but there is too much dependencies plus cli usage without independed code. Later will be fixed, deadline is close.
-	localFilePath := "./videos/test.mov"
-	app := "./neofs-cli"
 
+	app := "./neofs-cli"
 	arg0 := "-r"
 	arg1 := neofsNodeLink
-	arg2 := "-w"
-	arg3 := walletPath
-	arg4 := "--address"
-	arg5 := address
-	arg6 := "object"
-	arg7 := "put"
-	arg8 := "--file"
-	arg9 := localFilePath
-	arg10 := "--cid"
-	arg11 := neofsContainerId
+	arg2 := "-k"
+	arg3 := wip
+	arg4 := "object"
+	arg5 := "put"
+	arg6 := "--file"
+	arg7 := localFilePath
+	arg8 := "--cid"
+	arg9 := neofsContainerId
 
-	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
-	stdout, err := cmd.Output()
+	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+
+	stdout, err := cmd.CombinedOutput()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(fmt.Sprint(err) + ": " + string(stdout))
 		return
 	}
 
-	// Print the output
-	fmt.Println(string(stdout))
-	return "", nil
+	wordsArray := strings.Fields(string(stdout))
+	id := wordsArray[5]
+	cid := wordsArray[7]
+	url = neofsHttpLink + "/" + cid + "/" + id
+	return
 }
 
 func main() {
