@@ -14,6 +14,7 @@ import (
 	"github.com/joeqian10/neo3-gogogo/wallet"
 	"io/ioutil"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"time"
 )
@@ -21,14 +22,16 @@ import (
 const port = "http://seed1t.neo.org:20332"
 const magic = 844378958
 const walletPath = "./dv.neo-wallet.json"
+const address = "NSadsnNbMKd5DDdLESNFUZwxr9Zmyc9wBJ"
 const walletPassword = "qwerty"
 const scriptHash = "0x19d98abb558d15cb9b893a6c6b4f01b3aa380336"
 const explorerLink = "https://neo3.neotube.io"
 const explorerLinkContract = explorerLink + "/contract/"
 const explorerLinkAddress = explorerLink + "/address/"
 const explorerLinkTx = explorerLink + "/transaction/"
-
-
+const neofsContainerId = "9i3ihnXrbHdN5f5TeG6BAgBi4uPmSeCKNSZsjmsHMvjE"
+const neofsContainerLink = "https://http.fs.neo.org/" + neofsContainerId + "/"
+const neofsNodeLink = "st1.storage.fs.neo.org:8080"
 
 func mint(name string, description string, url string) (hash string, err error) {
 	// init arguments
@@ -171,8 +174,35 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
 	// TODO upload from s3 and get local file path
+
+	// Sorry for this peace of code, we first tried to use code from https://github.com/nspcc-dev/neofs-node and then from https://github.com/nspcc-dev/neofs-api-go
+	// but there is too much dependencies plus cli usage without independed code. Later will be fixed, deadline is close.
 	localFilePath := "./videos/test.mov"
-	
+	app := "./neofs-cli"
+
+	arg0 := "-r"
+	arg1 := neofsNodeLink
+	arg2 := "-w"
+	arg3 := walletPath
+	arg4 := "--address"
+	arg5 := address
+	arg6 := "object"
+	arg7 := "put"
+	arg8 := "--file"
+	arg9 := localFilePath
+	arg10 := "--cid"
+	arg11 := neofsContainerId
+
+	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Print the output
+	fmt.Println(string(stdout))
 	return "", nil
 }
 
@@ -280,6 +310,14 @@ func main() {
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
 			"stack": txLogs,
+			"error":   err,
+		})
+	})
+
+	r.GET("/test", func(c *gin.Context) {
+		url, err := uploadFileToNeoFS("test")
+		c.JSON(200, gin.H{
+			"url": explorerLinkTx + url,
 			"error":   err,
 		})
 	})

@@ -7,6 +7,9 @@ RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
 
 ADD ./main.go  /go/src/${APP_NAME}/
+ADD ./neofs-cli  /go/src/${APP_NAME}/
+
+RUN chmod +x /go/src/${APP_NAME}/neofs-cli
 
 WORKDIR /go/src/${APP_NAME}/
 
