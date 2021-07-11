@@ -227,10 +227,29 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		txHash, err := mint(name, description, fileUrl)
+		uploadToNeoFsRequestValue := c.DefaultPostForm("upload_to_neo_fs", "true")
+		uploadToNeoFs, err := strconv.ParseBool(uploadToNeoFsRequestValue)
 		if err != nil {
 			fmt.Println(err)
 		}
+		neoFsFileUrl := ""
+		txHash := ""
+		if uploadToNeoFs {
+			neoFsFileUrl, err = uploadFileToNeoFS(fileUrl)
+			if err != nil {
+				fmt.Println(err)
+			}
+			txHash, err = mint(name, description, neoFsFileUrl)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			txHash, err = mint(name, description, fileUrl)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
 		txLogs, err := getLogsFromTx(txHash, showTxLogs)
 		if err != nil {
 			fmt.Println(err)
@@ -240,6 +259,7 @@ func main() {
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
+			"neoFsFileUrl": neoFsFileUrl,
 			"stack": txLogs,
 			"error":   err,
 		})
@@ -313,14 +333,6 @@ func main() {
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
 			"stack": txLogs,
-			"error":   err,
-		})
-	})
-
-	r.GET("/test", func(c *gin.Context) {
-		url, err := uploadFileToNeoFS("test")
-		c.JSON(200, gin.H{
-			"url": explorerLinkTx + url,
 			"error":   err,
 		})
 	})
