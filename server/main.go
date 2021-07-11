@@ -169,6 +169,13 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 	return string(result), nil
 }
 
+func uploadFileToNeoFS(fileUrl string) (url string, err error) {
+	// TODO upload from s3 and get local file path
+	localFilePath := "./videos/test.mov"
+	
+	return "", nil
+}
+
 func main() {
 	r := gin.Default()
 
@@ -223,6 +230,15 @@ func main() {
 			"tx_hash": responseTxHash,
 			"url": explorerLinkTx + responseTxHash,
 			"logs": txLogs,
+			"error":   err,
+		})
+	})
+
+	r.POST("/upload_file_to_neofs", func(c *gin.Context) {
+		fileUrl := c.PostForm("fileUrl")
+		uploadedFileUrl, err := uploadFileToNeoFS(fileUrl)
+		c.JSON(200, gin.H{
+			"url": uploadedFileUrl,
 			"error":   err,
 		})
 	})
