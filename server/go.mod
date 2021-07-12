@@ -8,4 +8,5 @@ require (
 	github.com/joeqian10/neo3-gogogo v0.3.7
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/rs/zerolog v1.23.0
 )

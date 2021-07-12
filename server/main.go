@@ -12,6 +12,7 @@ import (
 	"github.com/joeqian10/neo3-gogogo/sc"
 	"github.com/joeqian10/neo3-gogogo/tx"
 	"github.com/joeqian10/neo3-gogogo/wallet"
+	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -177,49 +178,49 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 }
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
-	localFilePath := "./uploaded"
+	localFilePath := fmt.Sprintf("./uploaded/%s", path.Base(fileUrl))
 
-	file, err := os.Create(path.Base(localFilePath))
-	if err != nil {
-		return "", err
-	}
+	if _, err := os.Stat(localFilePath); os.IsNotExist(err) {
+		file, err := os.Create(path.Base(localFilePath))
+		if err != nil {
+			log.Error().Err(err).Msg("error while create file")
+			return "", err
+		}
 
-	defer file.Close()
-	fmt.Println(fileUrl)
-	if err := downloadFromS3(fileUrl, file); err != nil {
-		panic(err)
-		return "", err
+		defer file.Close()
+
+		if err := downloadFromS3(fileUrl, file); err != nil {
+			return "", err
+		}
 	}
 
 	// Sorry for this peace of code, we first tried to use code from https://github.com/nspcc-dev/neofs-node and then from https://github.com/nspcc-dev/neofs-api-go
 	// but there is too much dependencies plus cli usage without independed code. Later will be fixed, deadline is close.
 
 	app := "./neofs-cli"
-	arg0 := "-r"
-	arg1 := neofsNodeLink
-	arg2 := "-k"
-	arg3 := wip
-	arg4 := "object"
-	arg5 := "put"
-	arg6 := "--file"
-	arg7 := localFilePath
-	arg8 := "--cid"
-	arg9 := neofsContainerId
 
-	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+	args := []string{
+		"-r", neofsNodeLink,
+		"-k", wip, "object", "put",
+		"--file", localFilePath,
+		"--cid", neofsContainerId,
+	}
+
+	cmd := exec.Command(app, args...)
 
 	stdout, err := cmd.CombinedOutput()
 
 	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + string(stdout))
+		log.
+			Error().
+			Err(err).
+			Str("stdout", string(stdout)).
+			Msgf("failed to run command: %s %s", app, strings.Join(args, " "))
 		return "", err
 	}
 
 	wordsArray := strings.Fields(string(stdout))
-	id := wordsArray[5]
-	cid := wordsArray[7]
-	url = neofsHttpLink + "/" + cid + "/" + id
-	return
+	return fmt.Sprintf("%s/%s/%s", neofsHttpLink, wordsArray[7], wordsArray[5]), nil
 }
 
 func main() {
