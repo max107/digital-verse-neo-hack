@@ -222,7 +222,7 @@ func main() {
 		name := c.PostForm("name")
 		description := c.PostForm("description")
 		fileUrl := c.PostForm("url")
-		showTxLogsRequestValue := c.DefaultPostForm("show_tx_logs", "false")
+		showTxLogsRequestValue := c.DefaultPostForm("show_tx_logs", "true")
 		showTxLogs, err := strconv.ParseBool(showTxLogsRequestValue)
 		if err != nil {
 			fmt.Println(err)
