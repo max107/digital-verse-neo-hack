@@ -14,7 +14,9 @@ import (
 	"github.com/joeqian10/neo3-gogogo/wallet"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -175,8 +177,18 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 }
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
-	// TODO upload from s3 and get localFilePath var
-	localFilePath := "./videos/test.mov" // TODO change this var
+	localFilePath := "./videos/uploaded.mp4"
+
+	file, err := os.Create(path.Base(localFilePath))
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	if err := downloadFromS3(fileUrl, file); err != nil {
+		return "", err
+	}
 
 	// Sorry for this peace of code, we first tried to use code from https://github.com/nspcc-dev/neofs-node and then from https://github.com/nspcc-dev/neofs-api-go
 	// but there is too much dependencies plus cli usage without independed code. Later will be fixed, deadline is close.
@@ -199,7 +211,7 @@ func uploadFileToNeoFS(fileUrl string) (url string, err error) {
 
 	if err != nil {
 		fmt.Println(fmt.Sprint(err) + ": " + string(stdout))
-		return
+		return "", err
 	}
 
 	wordsArray := strings.Fields(string(stdout))
