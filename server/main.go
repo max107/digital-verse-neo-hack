@@ -63,7 +63,7 @@ func getTokenProperties(tokenId string) (hash string, err error) {
 		Type:  sc.ByteArray,
 		Value: []byte(tokenId),
 	}
-	
+
 	hash, err = invokeContract("properties", []interface{}{cp1})
 
 	return hash, err
@@ -147,16 +147,16 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 		time.Sleep(20 * time.Second) // wait until transaction is included in block...?
 	}
 	type RequestStruct struct {
-		Jsonrpc    	string `json:"jsonrpc"`
-		Id   		int `json:"id"`
-		Method  	string  `json:"method"`
-		Params  	[]string `json:"params"`
+		Jsonrpc string   `json:"jsonrpc"`
+		Id      int      `json:"id"`
+		Method  string   `json:"method"`
+		Params  []string `json:"params"`
 	}
 	data := RequestStruct{
-		Jsonrpc:    "2.0",
-		Id:      	1,
-		Method: 	"getapplicationlog",
-		Params:   	[]string{ txHash },
+		Jsonrpc: "2.0",
+		Id:      1,
+		Method:  "getapplicationlog",
+		Params:  []string{txHash},
 	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -223,6 +223,12 @@ func uploadFileToNeoFS(fileUrl string) (url string, err error) {
 	return fmt.Sprintf("%s/%s/%s", neofsHttpLink, wordsArray[7], wordsArray[5]), nil
 }
 
+type CreateNFTRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
+}
+
 func main() {
 	r := gin.Default()
 
@@ -233,50 +239,69 @@ func main() {
 	})
 
 	r.POST("/create_nft", func(c *gin.Context) {
-		name := c.DefaultPostForm("name", "Digital Verse")
-		description := c.DefaultPostForm("description", "Celebrity video")
-		fileUrl := c.PostForm("url")
-		fmt.Println(fileUrl)
+		var createReq CreateNFTRequest
+		if err := c.BindJSON(&createReq); err != nil {
+			log.Error().Err(err).Msg("failed to encode CreateNFTRequest")
+			return
+		}
+
+		if len(createReq.Name) == 0 {
+			createReq.Name = "Digital Verse"
+		}
+		if len(createReq.Description) == 0 {
+			createReq.Description = "Celebrity video"
+		}
+
 		showTxLogsRequestValue := c.DefaultPostForm("show_tx_logs", "true")
 		showTxLogs, err := strconv.ParseBool(showTxLogsRequestValue)
 		if err != nil {
-			fmt.Println(err)
+			log.Error().Err(err).Msg("strconv.ParseBool")
+			return
 		}
+
 		uploadToNeoFsRequestValue := c.DefaultPostForm("upload_to_neo_fs", "true")
 		uploadToNeoFs, err := strconv.ParseBool(uploadToNeoFsRequestValue)
 		if err != nil {
-			fmt.Println(err)
+			log.Error().Err(err).Msg("failed to encode CreateNFTRequest")
+			return
 		}
+
 		neoFsFileUrl := ""
 		txHash := ""
 		if uploadToNeoFs {
-			neoFsFileUrl, err = uploadFileToNeoFS(fileUrl)
+			neoFsFileUrl, err = uploadFileToNeoFS(createReq.URL)
 			if err != nil {
-				fmt.Println(err)
+				log.Error().Err(err).Msg("uploadFileToNeoFS")
+				return
 			}
-			txHash, err = mint(name, description, neoFsFileUrl)
+
+			txHash, err = mint(createReq.Name, createReq.Description, neoFsFileUrl)
 			if err != nil {
-				fmt.Println(err)
+				log.Error().Err(err).Msg("mint")
+				return
 			}
+
 		} else {
-			txHash, err = mint(name, description, fileUrl)
+			txHash, err = mint(createReq.Name, createReq.Description, createReq.URL)
 			if err != nil {
-				fmt.Println(err)
+				log.Error().Err(err).Msg("mint")
+				return
 			}
 		}
 
 		txLogs, err := getLogsFromTx(txHash, showTxLogs)
 		if err != nil {
-			fmt.Println(err)
+			log.Error().Err(err).Msg("getLogsFromTx")
+			return
 		}
 
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
-			"tx_hash": responseTxHash,
-			"url": explorerLinkTx + responseTxHash,
+			"tx_hash":      responseTxHash,
+			"url":          explorerLinkTx + responseTxHash,
 			"neoFsFileUrl": neoFsFileUrl,
-			"stack": txLogs,
-			"error":   err,
+			"stack":        txLogs,
+			"error":        err,
 		})
 	})
 
@@ -296,8 +321,8 @@ func main() {
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
-			"url": explorerLinkTx + responseTxHash,
-			"logs": txLogs,
+			"url":     explorerLinkTx + responseTxHash,
+			"logs":    txLogs,
 			"error":   err,
 		})
 	})
@@ -306,8 +331,8 @@ func main() {
 		fileUrl := c.PostForm("fileUrl")
 		uploadedFileUrl, err := uploadFileToNeoFS(fileUrl)
 		c.JSON(200, gin.H{
-			"url": uploadedFileUrl,
-			"error":   err,
+			"url":   uploadedFileUrl,
+			"error": err,
 		})
 	})
 
@@ -326,8 +351,8 @@ func main() {
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
-			"url": explorerLinkTx + responseTxHash,
-			"logs": txLogs,
+			"url":     explorerLinkTx + responseTxHash,
+			"logs":    txLogs,
 			"error":   err,
 		})
 	})
@@ -346,8 +371,8 @@ func main() {
 		responseTxHash := "0x" + txHash
 		c.JSON(200, gin.H{
 			"tx_hash": responseTxHash,
-			"url": explorerLinkTx + responseTxHash,
-			"stack": txLogs,
+			"url":     explorerLinkTx + responseTxHash,
+			"stack":   txLogs,
 			"error":   err,
 		})
 	})
