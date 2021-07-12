@@ -25,6 +25,9 @@ https://neowish.ngd.network/#/
 
 # API
 
+{server} = 165.22.72.149:49160 
+
+
 1.
 **{server}/create_nft**
 
@@ -88,3 +91,6 @@ Link: https://http.fs.neo.org/9i3ihnXrbHdN5f5TeG6BAgBi4uPmSeCKNSZsjmsHMvjE/G7HDt
     ./neo-go wallet export -w /Users/maxim/Desktop/Golang/src/digital-verse-neo-hack/wallets/dv.neo-wallet.json --decrypt NSadsnNbMKd5DDdLESNFUZwxr9Zmyc9wBJ
     
     WIF - KzbbA7tBNoSQHQiigtVSjcbX17R5p89Hb3LTCBhYvF85mZjHWj6n
+
+#### Todo
+https://github.com/nspcc-dev/neofs-node/blob/af412f787469edb9d0f28a2a3b07443f08d8dda5/cmd/neofs-cli/modules/object.go#L209

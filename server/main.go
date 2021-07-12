@@ -185,7 +185,7 @@ func uploadFileToNeoFS(fileUrl string) (url string, err error) {
 	}
 
 	defer file.Close()
-
+	fmt.Println(fileUrl)
 	if err := downloadFromS3(fileUrl, file); err != nil {
 		panic(err)
 		return "", err
@@ -235,6 +235,7 @@ func main() {
 		name := c.DefaultPostForm("name", "Digital Verse")
 		description := c.DefaultPostForm("description", "Celebrity video")
 		fileUrl := c.PostForm("url")
+		fmt.Println(fileUrl)
 		showTxLogsRequestValue := c.DefaultPostForm("show_tx_logs", "true")
 		showTxLogs, err := strconv.ParseBool(showTxLogsRequestValue)
 		if err != nil {
