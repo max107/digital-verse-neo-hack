@@ -177,7 +177,7 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 }
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
-	localFilePath := "./videos/uploaded.mp4"
+	localFilePath := "./videos/uploaded"
 
 	file, err := os.Create(path.Base(localFilePath))
 	if err != nil {
