@@ -14,7 +14,10 @@ import (
 	"github.com/joeqian10/neo3-gogogo/wallet"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -171,9 +174,20 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
 	// TODO upload from s3 and get local file path
-	localFilePath := "./videos/test.mov"
+	localFilePath := "./videos/test.mov" // @todo
+
+	file, err := os.Create(path.Base(localFilePath))
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	if err := downloadFromS3(fileUrl, file); err != nil {
+		return "", err
+	}
 	
-	return "", nil
+	return fmt.Sprintf("https://example.com/%s", strings.TrimLeft(fileUrl, "/")), nil
 }
 
 func main() {
