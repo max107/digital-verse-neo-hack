@@ -1,3 +1,9 @@
+# Setup:
+docker-compose build
+
+docker-compose up
+
+server runs on port -> localhost:49160
 # TestNet Wallet:
 1. 
 wallets/dv.neo-wallet.json

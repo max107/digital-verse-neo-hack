@@ -177,7 +177,7 @@ func getLogsFromTx(txHash string, wait bool) (stack string, err error) {
 }
 
 func uploadFileToNeoFS(fileUrl string) (url string, err error) {
-	localFilePath := "./videos/uploaded"
+	localFilePath := "./uploaded"
 
 	file, err := os.Create(path.Base(localFilePath))
 	if err != nil {
@@ -187,6 +187,7 @@ func uploadFileToNeoFS(fileUrl string) (url string, err error) {
 	defer file.Close()
 
 	if err := downloadFromS3(fileUrl, file); err != nil {
+		panic(err)
 		return "", err
 	}
 
@@ -231,8 +232,8 @@ func main() {
 	})
 
 	r.POST("/create_nft", func(c *gin.Context) {
-		name := c.PostForm("name")
-		description := c.PostForm("description")
+		name := c.DefaultPostForm("name", "Digital Verse")
+		description := c.DefaultPostForm("description", "Celebrity video")
 		fileUrl := c.PostForm("url")
 		showTxLogsRequestValue := c.DefaultPostForm("show_tx_logs", "true")
 		showTxLogs, err := strconv.ParseBool(showTxLogsRequestValue)
